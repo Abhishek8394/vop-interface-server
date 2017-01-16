@@ -1,0 +1,17 @@
+{
+  "name": "webserv",
+  "version": "1.0.0",
+  "description": "Local Web Socket Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "console.log(\"hi\");"
+  },
+  "author": "Abhishek Patel",
+  "license": "GPL-2.0",
+  "repository": {
+    "type": "git"
+  },
+  "dependencies": {
+    "ws": "^1.1.1"
+  }
+}
