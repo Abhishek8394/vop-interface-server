@@ -22,108 +22,119 @@ var TCP_SERVER_PORT_VE = 11917; 					// TCP connection port to be used by voice 
 var TCP_SERVER_PORT_APPS = 12050; 					// TCP connection port for rest of the clients to connect to.
 var vopServerEncoding = "utf8"; 					// Interpret data from vop as a string of this encoding
 var appServerEncoding = "utf8"; 					// Interpret data from client apps as a string of this encoding
+var enableWebSockServer = true;						// Switch for Web Socket Server
+var enableAppServer = true;							// Switch for App Server
 //  ---------------------------------
-var credentials = {key:privateKey,cert:certificate};
-var app = express();
-var httpsServer;
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+/*
+* Inititalize web socket servers
+*/
+function startWebSocketServers(){
 
-if(useSecureServerWebSocket){
-	httpsServer = https.createServer(credentials,App);
-}
-else{
-	httpsServer = http.createServer(app);	
-}
-
-httpsServer.listen(webSocketPort);
-const wss = new WebSocket.Server({ server: httpsServer,path:'/hi'});
-const wss2 = new WebSocket.Server({ server: httpsServer,path:'/speech'});
-wss.on('connection', function connection(ws) {
-  ws.on('message', function incoming(message) {
-    console.log('client side received: %s', message);
-	var msg = {"echo":message,"extra":"something"};
-	ws.send('msg');
-  });
-});
-wss2.on('connection', function connection(ws) {
-  ws.on('message', function incoming(message) {
-    console.log('speech server side received: %s', message);
-	var msg = {"echo":message,"extra":"something"};
-	ws.send('speech!');
-	wss.clients.forEach(function each(client){
-		if(client.readyState == WebSocket.OPEN){
-			client.send("get this!");
-		}
+	var credentials = {key:privateKey,cert:certificate};
+	var app = express();
+	var httpsServer;
+	app.use(function(req, res, next) {
+	  res.header("Access-Control-Allow-Origin", "*");
+	  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	  next();
 	});
-  });
-});
 
-// Send msgObj to connection at socket. By default sends as a JSON string. 
-// callback to register a handler when message finally sent
-// Set asJson to false to send msgObj as is (sender responsible for setting encoding). 
-// returns same value as node js net.socket.write() method.
-function sendMessage(socket,msgObj,callback=null,asJson = true,encoding="utf8"){
-	if(asJson){		
-		return socket.write(utility.getJSONString(msgObj),encoding,callback);
+	if(useSecureServerWebSocket){
+		httpsServer = https.createServer(credentials,App);
 	}
 	else{
-		return socket.write(msgObj,encoding,callback);
+		httpsServer = http.createServer(app);	
 	}
+
+	httpsServer.listen(webSocketPort);
+	const wss = new WebSocket.Server({ server: httpsServer,path:'/hi'});
+	const wss2 = new WebSocket.Server({ server: httpsServer,path:'/speech'});
+	wss.on('connection', function connection(ws) {
+		connectionsManager.newConnectionHandler(ws,ConnectionTypes.WSS);
+	});
+	wss2.on('connection', function connection(ws) {
+	  ws.on('message', function incoming(message) {
+	    console.log('speech server side received: %s', message);
+		var msg = {"echo":message,"extra":"something"};
+		ws.send('speech!');
+		wss.clients.forEach(function each(client){
+			if(client.readyState == WebSocket.OPEN){
+				client.send("get this!");
+			}
+		});
+	  });
+	});
 }
 
-// Handle message received by vop
-function vopMessageHandler(buffer){
-	console.log(buffer);
-	var buffData = utility.jsonify(buffer);
-	if(buffData!=undefined){
-		if(buffData["msg"]=="hello"){
-			sendMessage(vopServSocket,"yo");
-		}
-	}
+// server for speech recognition module (called vop) 
+function startSpeechServer(){	
+	var vopServSocket;
+	var vopconobj ;
+	var vopServer = net.createServer((socket)=>{
+		vopServSocket = socket;
+		vopServSocket.setEncoding(vopServerEncoding);
+		vopconobj = connectionsManager.newConnectionHandler(vopServSocket,ConnectionTypes.VOP);
+		console.log("vop connected");
+	});
+	vopServer.on('error',function(err){
+		console.log("vop server: error connecting");
+	});
+	vopServer.listen(TCP_SERVER_PORT_VE,function(){
+		console.log("vop server: listening on "+TCP_SERVER_PORT_VE);
+	});
 }
-// Handle messages from client apps
-function appsMessageHandler(buffer){
-	console.log(buffer);
+
+// Server for other applications
+function startAppServer(){	
+	var otherAppServer = net.createServer((s)=>{
+		s.setEncoding(appServerEncoding);
+		var aco = connectionsManager.newConnectionHandler(s,ConnectionTypes.APP);
+		// console.log("foo "+connectionsManager.VOPConnection);
+		console.log("new app connected: "+aco.getName());
+	});
+	otherAppServer.on('error',function(err){
+		console.log("app server: error connecting");
+	});
+	otherAppServer.listen(TCP_SERVER_PORT_APPS,function(){
+		console.log("app server listening on "+TCP_SERVER_PORT_APPS);
+	});
+}
+//  main function equivalent
+process.on('uncaughtException',function(err){
+	console.log(err);	
+});
+startSpeechServer();
+if(enableWebSockServer){
+	startWebSocketServers();
+}
+if(enableAppServer){
+	startAppServer();
 }
 
-// server for speech recognition module (called vop) ----------------------
-var vopServSocket;var vopconobj ;
-var vopServer = net.createServer((socket)=>{
-	vopServSocket = socket;
-	vopServSocket.setEncoding(vopServerEncoding);
-	vopconobj = connectionsManager.newConnectionHandler(vopServSocket,ConnectionTypes.VOP);
-	socket.on('data',function(b){vopconobj.read(b);});
-	console.log("vop connected");
-});
-vopServer.on('error',function(err){
-	console.log("vop server: error connecting");
-});
-vopServer.listen(TCP_SERVER_PORT_VE,function(){
-	console.log("vop server: listening on "+TCP_SERVER_PORT_VE);
-});
-// --------------------------------------------------------------
+// // Send msgObj to connection at socket. By default sends as a JSON string. 
+// // callback to register a handler when message finally sent
+// // Set asJson to false to send msgObj as is (sender responsible for setting encoding). 
+// // returns same value as node js net.socket.write() method.
+// function sendMessage(socket,msgObj,callback=null,asJson = true,encoding="utf8"){
+// 	if(asJson){		
+// 		return socket.write(utility.getJSONString(msgObj),encoding,callback);
+// 	}
+// 	else{
+// 		return socket.write(msgObj,encoding,callback);
+// 	}
+// }
 
-// Server for other applications --------------------------------
-var appServSockets = [];
-var otherAppServer = net.createServer((s)=>{
-	// var tmpName = utility.generateTempName();
-	// appServSockets.push({tmpName:{"socket":s}});
-	s.setEncoding(appServerEncoding);
-	var aco = connectionsManager.newConnectionHandler(s,ConnectionTypes.APP);
-	// console.log("foo "+connectionsManager.VOPConnection);
-	console.log("new app connected: "+aco.getName());
-});
-otherAppServer.on('error',function(err){
-	console.log("app server: error connecting");
-});
-otherAppServer.listen(TCP_SERVER_PORT_APPS,function(){
-	console.log("app server listening on "+TCP_SERVER_PORT_APPS);
-});
-//  -------------------------------------------------------------
-
-
-
+// // Handle message received by vop
+// function vopMessageHandler(buffer){
+// 	console.log(buffer);
+// 	var buffData = utility.jsonify(buffer);
+// 	if(buffData!=undefined){
+// 		if(buffData["msg"]=="hello"){
+// 			sendMessage(vopServSocket,"yo");
+// 		}
+// 	}
+// }
+// // Handle messages from client apps
+// function appsMessageHandler(buffer){
+// 	console.log(buffer);
+// }
