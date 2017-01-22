@@ -10,20 +10,22 @@ const CONNECTION_MANAGER_LIB = require('./lib/ConnectionManager.js');
 const ConnectionTypes = CONNECTION_MANAGER_LIB.ConnectionTypes;
 const VOPConnection = CONNECTION_MANAGER_LIB.VOPConnection;
 const AppConnection = CONNECTION_MANAGER_LIB.AppConnection;
+const confReader = require('./lib/confReader.js');
 
 var connectionsManager = new CONNECTION_MANAGER_LIB.ConnectionsManager();
 var utility = new UTILITY();
+var conf = new confReader();
 // Settings -------------------------
-var useSecureServerWebSocket = false; 				// If websocket server should listen on secure/unsecure connection
-var webSocketPort = 8080; 							// Port websocket server listens to
-var privateKey = fs.readFileSync('cert/key.pem'); 	// for websocket server
-var certificate = fs.readFileSync('cert/cert.pem'); // for websocket server
-var TCP_SERVER_PORT_VE = 11917; 					// TCP connection port to be used by voice engine
-var TCP_SERVER_PORT_APPS = 12050; 					// TCP connection port for rest of the clients to connect to.
-var vopServerEncoding = "utf8"; 					// Interpret data from vop as a string of this encoding
-var appServerEncoding = "utf8"; 					// Interpret data from client apps as a string of this encoding
-var enableWebSockServer = true;						// Switch for Web Socket Server
-var enableAppServer = true;							// Switch for App Server
+var useSecureServerWebSocket = conf.config.useSecureServerWebSocket; 	// If websocket server should listen on secure/unsecure connection
+var webSocketPort = conf.config.webSocketPort; 							// Port websocket server listens to
+var privateKey = fs.readFileSync(conf.config.privateKey); 				// for websocket server
+var certificate = fs.readFileSync(conf.config.certificate); 			// for websocket server
+var TCP_SERVER_PORT_VE = conf.config.TCP_SERVER_PORT_VE; 				// TCP connection port to be used by voice engine
+var TCP_SERVER_PORT_APPS = conf.config.TCP_SERVER_PORT_APPS; 			// TCP connection port for rest of the clients to connect to.
+var vopServerEncoding = conf.config.vopServerEncoding; 					// Interpret data from vop as a string of this encoding
+var appServerEncoding = conf.config.appServerEncoding; 					// Interpret data from client apps as a string of this encoding
+var enableWebSockServer = conf.config.enableWebSockServer;				// Switch for Web Socket Server
+var enableAppServer = conf.config.enableAppServer;						// Switch for App Server
 //  ---------------------------------
 /*
 * Inititalize web socket servers
