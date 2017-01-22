@@ -32,5 +32,8 @@ All messages transmitted will have the following format:
 ```
 This is the format referred to as **response object**.
 ## Status
-Supports request routing for VOP to app messages and all messages from any app forwarded to apps. Apps cannot communicate among each other via this server. Supports web sockets as well as simple TCP socket connections. 
+Supports request routing for VOP to app messages and all messages from any app forwarded to VOP. 
+
+Apps cannot communicate among each other via this server. Supports web sockets as well as simple TCP socket connections. 
+
 Just a basic skeleton for now, needs more changes.
