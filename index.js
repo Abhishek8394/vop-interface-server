@@ -26,6 +26,8 @@ var vopServerEncoding = conf.config.vopServerEncoding; 					// Interpret data fr
 var appServerEncoding = conf.config.appServerEncoding; 					// Interpret data from client apps as a string of this encoding
 var enableWebSockServer = conf.config.enableWebSockServer;				// Switch for Web Socket Server
 var enableAppServer = conf.config.enableAppServer;						// Switch for App Server
+var enableAppRegistrationServer = conf.config.enableAppRegistrationServer; // Switch for App registration portal
+var appRegistrationSecureMode = conf.config.appRegistrationSecureMode;	// Use https
 //  ---------------------------------
 /*
 * Inititalize web socket servers
@@ -101,6 +103,28 @@ function startAppServer(){
 		console.log("app server listening on "+TCP_SERVER_PORT_APPS);
 	});
 }
+
+// Web Portal to register apps.
+function startAppRegistrationServer(){
+	var credentials = {key:privateKey,cert:certificate};
+	var app = express();
+	app.use('/res',express.static('webPortal/public'));
+	var httpsServer;
+	var listeningPort = 80;
+	if(appRegistrationSecureMode){
+		httpsServer = https.createServer(credentials,app);
+		listeningPort = 443;
+	}
+	else{
+		httpsServer = http.createServer(app);
+	}
+	app.get('/bijli',function(req,res){
+		res.send("<script src=\"res/js/sample.js\" type=\"text/javascript\">");
+	});
+	httpsServer.listen(listeningPort,function(){
+		console.log("App Registration portal started");
+	});
+}
 //  main function equivalent
 process.on('uncaughtException',function(err){
 	console.log(err);	
@@ -113,6 +137,9 @@ if(enableAppServer){
 	startAppServer();
 }
 
+if(enableAppRegistrationServer){
+	startAppRegistrationServer();
+}
 // // Send msgObj to connection at socket. By default sends as a JSON string. 
 // // callback to register a handler when message finally sent
 // // Set asJson to false to send msgObj as is (sender responsible for setting encoding). 

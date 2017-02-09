@@ -10,6 +10,8 @@ var configOptions = {
 	vopServerEncoding : "utf8", 					// Interpret data from vop as a string of this encoding
 	appServerEncoding : "utf8", 					// Interpret data from client apps as a string of this encoding
 	enableWebSockServer : true,						// Switch for Web Socket Server
-	enableAppServer : true
+	enableAppServer : true,
+	enableAppRegistrationServer: true,				// Start a web portal for apps to register themselves to use this platform.
+	appRegistrationSecureMode: false				// Use https
 };
 module.exports = configOptions;
