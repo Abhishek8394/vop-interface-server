@@ -129,7 +129,7 @@ function startAppRegistrationServer(){
 		res.send("<html><head><script src=\"res/js/sample.js\" type=\"text/javascript\"></head></html>");
 	});
 	app.post('/voice', function(req,res){
-		SpeechHandler(req,res);
+		SpeechHandler(req,res, connectionsManager);
 	});
 	httpsServer.listen(listeningPort,function(){
 		console.log("App Registration portal started");
