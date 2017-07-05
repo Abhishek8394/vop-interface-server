@@ -3,6 +3,8 @@ const fs = require('fs');
 const https = require('https');
 const http = require('http');
 const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser')
 const net = require('net');
 //  Custom libs
 const UTILITY = require('./lib/utility.js');
@@ -11,6 +13,8 @@ const ConnectionTypes = CONNECTION_MANAGER_LIB.ConnectionTypes;
 const VOPConnection = CONNECTION_MANAGER_LIB.VOPConnection;
 const AppConnection = CONNECTION_MANAGER_LIB.AppConnection;
 const confReader = require('./lib/confReader.js');
+const SPEECH_HANDLER_LIB = require('./lib/googleSpeech.js');
+const SpeechHandler = SPEECH_HANDLER_LIB.SpeechHandler;
 
 var connectionsManager = new CONNECTION_MANAGER_LIB.ConnectionsManager();
 var utility = new UTILITY();
@@ -109,6 +113,9 @@ function startAppRegistrationServer(){
 	var credentials = {key:privateKey,cert:certificate};
 	var app = express();
 	app.use('/res',express.static('webPortal/public'));
+	app.use(cors());
+	app.use(bodyParser.urlencoded({extended:false}));
+	app.use(bodyParser.json({limit:'50mb'}));
 	var httpsServer;
 	var listeningPort = 80;
 	if(appRegistrationSecureMode){
@@ -119,7 +126,10 @@ function startAppRegistrationServer(){
 		httpsServer = http.createServer(app);
 	}
 	app.get('/bijli',function(req,res){
-		res.send("<script src=\"res/js/sample.js\" type=\"text/javascript\">");
+		res.send("<html><head><script src=\"res/js/sample.js\" type=\"text/javascript\"></head></html>");
+	});
+	app.post('/voice', function(req,res){
+		SpeechHandler(req,res);
 	});
 	httpsServer.listen(listeningPort,function(){
 		console.log("App Registration portal started");
