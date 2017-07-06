@@ -12,6 +12,7 @@
     "type": "git"
   },
   "dependencies": {
+    "body-parser":"^1.17.1",
     "cors":"^2.8.3",
     "@google-cloud/speech": "^0.9.3",
     "express": "^4.14.0",
