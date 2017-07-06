@@ -1,3 +1,4 @@
+const path = require('path');
 const WebSocket = require('ws');
 const fs = require('fs');
 const https = require('https');
@@ -113,7 +114,8 @@ function startAppServer(){
 function startAppRegistrationServer(){
 	var credentials = {key:privateKey,cert:certificate};
 	var app = express();
-	app.use('/res',express.static('webPortal/public'));
+	var staticFilePath = __dirname + '/webPortal/public';
+	app.use('/res',express.static(staticFilePath));
 	app.use(cors());
 	app.use(bodyParser.urlencoded({extended:false}));
 	app.use(bodyParser.json({limit:'50mb'}));
@@ -126,6 +128,10 @@ function startAppRegistrationServer(){
 	else{
 		httpsServer = http.createServer(app);
 	}
+
+	app.get('/', function(req, res){
+		res.sendFile(path.join(staticFilePath,'index.html'));
+	});
 	app.get('/bijli',function(req,res){
 		res.send("<html><head><script src=\"res/js/sample.js\" type=\"text/javascript\"></head></html>");
 	});
