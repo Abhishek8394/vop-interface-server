@@ -15,6 +15,7 @@ const AppConnection = CONNECTION_MANAGER_LIB.AppConnection;
 const confReader = require('./lib/confReader.js');
 const SPEECH_HANDLER_LIB = require('./lib/googleSpeech.js');
 const SpeechHandler = SPEECH_HANDLER_LIB.SpeechHandler;
+const TextHandler = SPEECH_HANDLER_LIB.TextHandler;
 
 var connectionsManager = new CONNECTION_MANAGER_LIB.ConnectionsManager();
 var utility = new UTILITY();
@@ -130,6 +131,9 @@ function startAppRegistrationServer(){
 	});
 	app.post('/voice', function(req,res){
 		SpeechHandler(req,res, connectionsManager);
+	});
+	app.post('/text', function(req,res){
+		TextHandler(req, res, connectionsManager);
 	});
 	httpsServer.listen(listeningPort,function(){
 		console.log("App Registration portal started");
