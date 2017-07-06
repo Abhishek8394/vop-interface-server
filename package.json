@@ -12,6 +12,7 @@
     "type": "git"
   },
   "dependencies": {
+    "cors":"^2.8.3",
     "@google-cloud/speech": "^0.9.3",
     "express": "^4.14.0",
     "utf-8-validate": "^2.0.0",
