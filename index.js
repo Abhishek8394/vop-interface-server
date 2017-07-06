@@ -141,7 +141,7 @@ function startAppRegistrationServer(){
 	app.post('/text', function(req,res){
 		TextHandler(req, res, connectionsManager);
 	});
-	httpsServer.listen(listeningPort,function(){
+	httpsServer.listen(process.env.PORT || listeningPort,function(){
 		console.log("App Registration portal started");
 	});
 }
