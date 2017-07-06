@@ -24,8 +24,8 @@ var conf = new confReader();
 // Settings -------------------------
 var useSecureServerWebSocket = conf.config.useSecureServerWebSocket; 	// If websocket server should listen on secure/unsecure connection
 var webSocketPort = conf.config.webSocketPort; 							// Port websocket server listens to
-var privateKey = fs.readFileSync(conf.config.privateKey); 				// for websocket server
-var certificate = fs.readFileSync(conf.config.certificate); 			// for websocket server
+var privateKey = process.env['wss_key'] || fs.readFileSync(conf.config.privateKey); 				// for websocket server
+var certificate = process.env['wss_cert'] || fs.readFileSync(conf.config.certificate); 			// for websocket server
 var TCP_SERVER_PORT_VE = conf.config.TCP_SERVER_PORT_VE; 				// TCP connection port to be used by voice engine
 var TCP_SERVER_PORT_APPS = conf.config.TCP_SERVER_PORT_APPS; 			// TCP connection port for rest of the clients to connect to.
 var vopServerEncoding = conf.config.vopServerEncoding; 					// Interpret data from vop as a string of this encoding
