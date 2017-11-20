@@ -110,7 +110,8 @@ function startAppServer(){
 	});
 }
 
-// Web Portal to register apps.
+// Web Portal to register apps. 
+// Also listens for user requests in form of voice or text.
 function startAppRegistrationServer(){
 	var credentials = {key:privateKey,cert:certificate};
 	var app = express();
@@ -132,9 +133,6 @@ function startAppRegistrationServer(){
 	app.get('/', function(req, res){
 		res.sendFile(path.join(staticFilePath,'index.html'));
 	});
-	app.get('/bijli',function(req,res){
-		res.send("<html><head><script src=\"res/js/sample.js\" type=\"text/javascript\"></head></html>");
-	});
 	app.post('/voice', function(req,res){
 		SpeechHandler(req,res, connectionsManager);
 	});
@@ -149,14 +147,17 @@ function startAppRegistrationServer(){
 process.on('uncaughtException',function(err){
 	console.log(err);	
 });
+// start server that communicates with VOP
 startSpeechServer();
+// start the web socket server
 if(enableWebSockServer){
 	startWebSocketServers();
 }
+// App server for apps that cannot use websockets or dont want to use websockets
 if(enableAppServer){
 	startAppServer();
 }
-
+// start the server that accepts user requests.
 if(enableAppRegistrationServer){
 	startAppRegistrationServer();
 }
