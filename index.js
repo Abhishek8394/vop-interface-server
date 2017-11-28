@@ -59,6 +59,8 @@ function startWebSocketServers(){
 	httpsServer.listen(webSocketPort);
 	const wss = new WebSocket.Server({ server: httpsServer,path:'/hi'});
 	const wss2 = new WebSocket.Server({ server: httpsServer,path:'/speech'});
+	// end point for clients to listen to, when app wants to send a response speech.
+	const wssTalkback = new WebSocket.Server({server: httpsServer, path:'/talkback'});
 	wss.on('connection', function connection(ws) {
 		connectionsManager.newConnectionHandler(ws,ConnectionTypes.WSS);
 	});
@@ -73,6 +75,15 @@ function startWebSocketServers(){
 			}
 		});
 	  });
+	});
+	wssTalkback.on('connection', function connection(ws){
+		connectionsManager.newConnectionHandler(ws, ConnectionTypes.TALKBACKWSS);
+		wssTalkback.on('message', function incoming(msg){
+			console.log("----------------");
+			console.log("client isnt supposed to send here! They sent");
+			console.log(msg);
+			console.log("----------------");
+		});
 	});
 }
 
@@ -116,7 +127,9 @@ function startAppRegistrationServer(){
 	var credentials = {key:privateKey,cert:certificate};
 	var app = express();
 	var staticFilePath = __dirname + '/webPortal/public';
-	app.use('/res',express.static(staticFilePath));
+	app.use('/static',express.static(staticFilePath));
+	app.use('/static',express.static(staticFilePath));
+	app.use('/static',express.static(staticFilePath));
 	app.use(cors());
 	app.use(bodyParser.urlencoded({extended:false}));
 	app.use(bodyParser.json({limit:'50mb'}));
@@ -131,7 +144,7 @@ function startAppRegistrationServer(){
 	}
 
 	app.get('/', function(req, res){
-		res.sendFile(path.join(staticFilePath,'index.html'));
+		res.sendFile(path.join(staticFilePath,'voiceInput.html'));
 	});
 	app.post('/voice', function(req,res){
 		SpeechHandler(req,res, connectionsManager);

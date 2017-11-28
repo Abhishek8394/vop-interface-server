@@ -1,0 +1,37 @@
+.echoSpeaker{
+	display: none;
+}
+
+.textInput{
+	margin-top:10%;
+}
+
+.logo-container{
+	padding-bottom: 2%;
+	border-bottom: 1px solid #eee;
+
+}
+
+.logo{
+	margin-top: 2%;
+	width: 15%;
+	height: 23%;
+	text-align: center;
+	padding: 3%	0.5%;
+	vertical-align: center;
+	border-radius: 98%;
+	border: 1px solid #61DAFB;
+	box-shadow: 1px 1px 15px 1px #61DAFB;
+}
+
+.status-bar{
+	background-color: #eee;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+	margin-top: 2%;
+	padding: 0.5% 0.3%;
+}
+
+.asr-msg-container{
+	display: none;
+}
