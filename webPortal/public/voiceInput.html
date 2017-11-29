@@ -59,12 +59,19 @@
 		</div>
 		<div id="asr-result" class="asr-result">
 			ASR results:<br/>
-			<span id="final_span" class="final"></span>
+			<span id="final_span" class="final"></span>	
 			<span id="interim_span" class="interim"></span>
 		</div>
 		<div class="status-bar">
 			<b>Request Status:&nbsp;</b><span id="request-status-bar"></span>
 		</div>
+		<div id="chat-container" class="chat-box">
+		</div>
+
+		<form onsubmit="dummysubmit(event)" style="margin-top: 15px;">
+			<br/>
+			<input id="talkback_dummy"  placeholder="debug bar">
+		</form>
 		<!-- <video controls></video> -->
 		<div id="errorMsg"></div>
 		<div id="responseData"></div>

@@ -1,6 +1,7 @@
 var audioInput = null;
 var AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioContext = new AudioContext();
+
 window.onload = function(){
   // alert("hi");
   audioInput = document.querySelector('#audioInput');
@@ -31,8 +32,8 @@ var errorElement = document.querySelector('#errorMsg');
 navigator.mediaDevices.getUserMedia(constraints)
 .then(function(stream) {
   // if(recorder==null){
-	var source = audioContext.createMediaStreamSource(stream);
-	recorder = new Recorder(audioContext, source);
+  var source = audioContext.createMediaStreamSource(stream);
+  recorder = new Recorder(audioContext, source);
   // }
   recorder.record();
   var audioTracks = stream.getAudioTracks();
@@ -76,12 +77,19 @@ function removeAudioTracks(){
 }
 
 function stopAudio(){
-	if(audioInput!=null){
-		audioInput.pause();
-	}
-	if(window.stream){		
-		// window.stream.getAudioTracks()[0].stop();
+  if(audioInput!=null){
+    audioInput.pause();
+  }
+  if(window.stream){    
+    // window.stream.getAudioTracks()[0].stop();
     removeAudioTracks();
-	}
-	recorder && recorder.stop(audioInput);
+  }
+  recorder && recorder.stop(audioInput);
+}
+
+function dummysubmit(e){
+  e.preventDefault();
+  var inp = document.getElementById("talkback_dummy");
+  var data = {msg: inp.value};
+  $.post("http://localhost/talkbackdummy", data);
 }

@@ -78,12 +78,6 @@ function startWebSocketServers(){
 	});
 	wssTalkback.on('connection', function connection(ws){
 		connectionsManager.newConnectionHandler(ws, ConnectionTypes.TALKBACKWSS);
-		wssTalkback.on('message', function incoming(msg){
-			console.log("----------------");
-			console.log("client isnt supposed to send here! They sent");
-			console.log(msg);
-			console.log("----------------");
-		});
 	});
 }
 
@@ -151,6 +145,10 @@ function startAppRegistrationServer(){
 	});
 	app.post('/text', function(req,res){
 		TextHandler(req, res, connectionsManager);
+	});
+	app.post('/talkbackdummy', function(req, res){
+		connectionsManager.emitEvent("sendToTalkback", "dummy", req.body);
+		res.send("ok");
 	});
 	httpsServer.listen(process.env.PORT || listeningPort,function(){
 		console.log("App Registration portal started");
